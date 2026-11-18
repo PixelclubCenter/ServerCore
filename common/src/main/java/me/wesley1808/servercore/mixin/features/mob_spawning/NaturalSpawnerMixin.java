@@ -2,7 +2,7 @@ package me.wesley1808.servercore.mixin.features.mob_spawning;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
-import me.wesley1808.servercore.common.interfaces.IMobCategory;
+import me.wesley1808.servercore.common.utils.SpawnGate;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.NaturalSpawner;
@@ -25,12 +25,8 @@ public class NaturalSpawnerMixin {
                     target = "Lnet/minecraft/world/entity/MobCategory;isPersistent()Z"
             )
     )
-    private static boolean servercore$shouldCancelSpawn(boolean isPersistent, ServerLevel level, @Local(ordinal = 0) MobCategory category) {
-        if (category.getMaxInstancesPerChunk() <= 0) {
-            return true;
-        }
-
-        final int interval = IMobCategory.getSpawnInterval(category);
-        return interval > 1 && level.getGameTime() % interval != 0;
+    private static boolean servercore$shouldCancelSpawn(boolean isPersistent, ServerLevel level, @Local(ordinal = 0) MobCategory category, @Local(argsOnly = true) NaturalSpawner.SpawnState state) {
+        // Pixel Club (A21): the interval part is evaluated once per spawn pass, see SpawnGate.
+        return SpawnGate.shouldCancelSpawn(level, category, state);
     }
 }
