@@ -5,7 +5,6 @@ import me.wesley1808.servercore.common.interfaces.IMobCategory;
 import me.wesley1808.servercore.common.interfaces.ISpawnGateState;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.level.NaturalSpawner;
 
 import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
@@ -15,9 +14,9 @@ import java.util.concurrent.atomic.LongAdder;
  * Pixel Club (A21): spawn-interval check evaluated once per spawn pass instead of once per chunk x category.
  * <p>
  * Upstream decides, for every spawnable chunk and every category, {@code interval > 1 && gameTime % interval != 0}.
- * The answer only depends on the game time and the configured interval, so it is computed once per
- * {@link NaturalSpawner.SpawnState} (one per level per tick) as a bit mask. The {@code max <= 0} check stays live,
- * because dynamic mobcaps can change it at any time.
+ * The answer only depends on the game time and the configured interval, so it is computed once per spawn pass
+ * (per level per tick: the cache sits on the ServerLevel and is reset at the head of ServerChunkCache#tickChunks) as a
+ * bit mask. The {@code max <= 0} check stays live, because dynamic mobcaps can change it at any time.
  * <p>
  * JVM property {@code servercore.pxc.spawnGate}: {@code on} (default) | {@code off} (upstream code path) |
  * {@code verify} (computes both, counts disagreements, logs every 1200 ticks per level).
@@ -38,16 +37,16 @@ public final class SpawnGate {
     private SpawnGate() {
     }
 
-    public static boolean shouldCancelSpawn(ServerLevel level, MobCategory category, NaturalSpawner.SpawnState state) {
+    public static boolean shouldCancelSpawn(ServerLevel level, MobCategory category) {
         if (category.getMaxInstancesPerChunk() <= 0) {
             return true;
         }
 
-        if (MODE == Mode.OFF || state == null) {
+        if (MODE == Mode.OFF) {
             return original(level, category);
         }
 
-        ISpawnGateState gate = (ISpawnGateState) state;
+        ISpawnGateState gate = (ISpawnGateState) level;
         int mask = gate.servercore$getGateMask();
         if (mask < 0) {
             long time = level.getGameTime();

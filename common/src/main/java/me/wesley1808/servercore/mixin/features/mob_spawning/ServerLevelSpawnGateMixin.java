@@ -1,13 +1,13 @@
 package me.wesley1808.servercore.mixin.features.mob_spawning;
 
 import me.wesley1808.servercore.common.interfaces.ISpawnGateState;
-import net.minecraft.world.level.NaturalSpawner;
+import net.minecraft.server.level.ServerLevel;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
-/** Pixel Club (A21): holds the spawn-interval mask for one spawn pass. */
-@Mixin(NaturalSpawner.SpawnState.class)
-public class SpawnStateMixin implements ISpawnGateState {
+/** Pixel Club (A21): holds the spawn-interval mask for this level's current spawn pass. */
+@Mixin(ServerLevel.class)
+public class ServerLevelSpawnGateMixin implements ISpawnGateState {
     @Unique
     private int servercore$gateMask = -1;
     @Unique

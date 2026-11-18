@@ -25,8 +25,8 @@ public class NaturalSpawnerMixin {
                     target = "Lnet/minecraft/world/entity/MobCategory;isPersistent()Z"
             )
     )
-    private static boolean servercore$shouldCancelSpawn(boolean isPersistent, ServerLevel level, @Local(ordinal = 0) MobCategory category, @Local(argsOnly = true) NaturalSpawner.SpawnState state) {
+    private static boolean servercore$shouldCancelSpawn(boolean isPersistent, ServerLevel level, @Local(ordinal = 0) MobCategory category) {
         // Pixel Club (A21): the interval part is evaluated once per spawn pass, see SpawnGate.
-        return SpawnGate.shouldCancelSpawn(level, category, state);
+        return SpawnGate.shouldCancelSpawn(level, category);
     }
 }
